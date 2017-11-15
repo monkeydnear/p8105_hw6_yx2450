@@ -1,0 +1,29 @@
+---
+title: "p8105_hw6_yx2450"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(forcats)
+library(viridis)
+library(plotly)
+theme_set(theme_bw())
+theme_update(legend.position = "bottom")
+```
+
+```{r}
+nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
+                           col_types = cols(building = col_character()),
+                           na = c("NA", "N/A"))
+
+nyc_inspections =
+  nyc_inspections %>%
+  filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
+  mutate(boro = str_to_title(boro))
+```
+
+
