@@ -11,6 +11,7 @@ library(stringr)
 library(forcats)
 library(viridis)
 library(plotly)
+library(shiny)
 ```
 
 ```{r}
@@ -34,18 +35,23 @@ nyc_inspections %>%
          yaxis = list(title = ""),
          margin = list(b = 100),
          barmode = 'group')
+
+
+selectInput("boro_choice", label = h3("Select boro"),
+            choices = boros, selected = "Manhattan")
 ```
 
 ###boxplot
 ```{r}
 nyc_inspections %>% 
-  mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>% 
+  mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
   plot_ly(y = ~score, color = ~cuisine_description, type = "box",
           colors = "Set2") %>% 
   layout(xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
-         barmode = 'group')
+         barmode = 'group') %>% 
+  
 ```
 
 ###Area plot

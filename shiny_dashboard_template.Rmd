@@ -1,0 +1,92 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+  runtime: shiny
+---
+```{r global, include=FALSE}
+library(readr)
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(forcats)
+library(viridis)
+library(plotly)
+library(shiny)
+library(flexdashboard)
+
+nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
+                           col_types = cols(building = col_character()),
+                           na = c("NA", "N/A"))
+
+nyc_inspections =
+  nyc_inspections %>%
+  filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
+  mutate(boro = str_to_title(boro)) 
+
+```
+
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+renderPlotly({
+  nyc_inspections %>% 
+  count(boro) %>% 
+  plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
+    layout(xaxis = list(title = "", tickangle = 45),
+         yaxis = list(title = ""),
+         margin = list(b = 100),
+         barmode = 'group')
+  })
+```
+
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+renderPlotly({
+  nyc_inspections %>% 
+  mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
+  plot_ly(y = ~score, color = ~cuisine_description, type = "box",
+          colors = "Set2") %>% 
+  layout(xaxis = list(title = "", tickangle = 45),
+         yaxis = list(title = ""),
+         margin = list(b = 100),
+         barmode = 'group')
+  })
+```
+
+### Chart C
+
+```{r}
+renderPlotly({
+  nyc_inspections %>%
+  separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
+  mutate(month = as.numeric(month)) %>% 
+  mutate(month = month.abb[month]) %>% 
+  unite(grade_date, c(year, month), sep = " ", remove = FALSE) %>% 
+  count(grade_date) %>% 
+  plot_ly(x = ~grade_date, y = ~n, type = "scatter", mode = "lines", fill = "tozeroy") %>% 
+    layout(xaxis = list(title = "", tickangle = -45),
+         yaxis = list(title = ""),
+         margin = list(b = 100),
+         barmode = 'group')
+  })
+```
+
