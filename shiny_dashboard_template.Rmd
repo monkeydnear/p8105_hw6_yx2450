@@ -68,7 +68,8 @@ renderPlotly({
   layout(xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
-         barmode = 'group')
+         barmode = 'group',
+         showlegend = FALSE)
   })
 ```
 
