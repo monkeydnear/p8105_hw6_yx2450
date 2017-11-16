@@ -11,13 +11,13 @@ library(stringr)
 library(forcats)
 library(viridis)
 library(plotly)
-library(shiny)
 ```
 
 ```{r}
 nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
                            col_types = cols(building = col_character()),
-                           na = c("NA", "N/A"))
+                           na = c("NA", "N/A")) %>% 
+  na.omit()
 
 nyc_inspections =
   nyc_inspections %>%
@@ -36,9 +36,6 @@ nyc_inspections %>%
          margin = list(b = 100),
          barmode = 'group')
 
-
-selectInput("boro_choice", label = h3("Select boro"),
-            choices = boros, selected = "Manhattan")
 ```
 
 ###boxplot
@@ -50,7 +47,8 @@ nyc_inspections %>%
   layout(xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
-         barmode = 'group') %>% 
+         barmode = 'group',
+         showlegend = FALSE)  
   
 ```
 
