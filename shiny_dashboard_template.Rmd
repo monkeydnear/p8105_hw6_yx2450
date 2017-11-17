@@ -45,8 +45,8 @@ Column {.sidebar}
 
 # selectInput widget-boro
 boros = nyc_inspections %>% distinct(boro) %>% pull()
-selectInput("boro_choice", label = h3("Select boro for bar plot"),
-            choices = boros, selected = "Manhattan")
+checkboxGroupInput("boro_choice", label = h3("Select boro for bar plot"),
+            choices = boros, selected = c("Manhattan","Brooklyn","Bronx"))
 
 
 # selectInput widget-year
@@ -70,7 +70,7 @@ cuisine_description = nyc_inspections %>% distinct(cuisine_description) %>% pull
 
 checkboxGroupInput("cuisine_description", label = h3("Choose cuisine type for box plot"),
     choices = cuisine_description, 
-    selected = "American")
+    selected = c("American","Korean","Pizza","Chinese"))
 
 
 
@@ -83,14 +83,14 @@ Row
 -----------------------------------------------------------------------
 
 ###  bar chart
-This bar plot describes the distribution of number of restaurant in different boros. The x axis represent different boros in NYC, and the y axis represent the number of restaurant.
 ```{r}
 renderPlotly({
   nyc_inspections %>% 
   filter(boro == input$boro_choice) %>% 
   count(boro) %>% 
   plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
-    layout(xaxis = list(title = "", tickangle = 45),
+    layout(title = "Number of Restaurant in Different Boros",
+           xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
          barmode = 'group')
@@ -102,7 +102,6 @@ Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
 ### boxplot
-This box chart describes the distribution of scores of different cuisines. The x axis represents different cuisines, and the y axis shows the score distribution of each cuisines.
 ```{r}
 renderPlotly({
   nyc_inspections %>% 
@@ -111,7 +110,8 @@ renderPlotly({
   mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
   plot_ly(y = ~score, color = ~cuisine_description, type = "box",
           colors = "Set2") %>% 
-  layout(xaxis = list(title = "", tickangle = 45),
+  layout(title = "the Score Distribution of Different Cuisines",
+         xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
          barmode = 'group',
@@ -120,7 +120,6 @@ renderPlotly({
 ```
 
 ### line plot
-This line plot describes how many restaurants were graded on each month. The x axis represents timeline, and the y axis represents number of restaurants was graded.
 
 ```{r}
 ##plot that shows number of row for each grade date
@@ -135,7 +134,7 @@ renderPlotly({
          date = as.Date(date)) %>%
   arrange(date) %>% 
   plot_ly(x = ~date, y = ~n, type = "scatter", mode = "lines") %>% 
-  layout(title = "the Number of Restaurant Graded on each Month",
+  layout(title = "the Number of Restaurant Graded Every Month",
          xaxis = list(title = "time"),
          yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),

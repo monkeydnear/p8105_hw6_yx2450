@@ -5,8 +5,8 @@ account: caimanqi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 236593
-bundleId: 1081276
+bundleId: 1081558
 url: https://caimanqi.shinyapps.io/shiny_dashboard_template/
-when: 1510933231.31369
+when: 1510942471.16704
 asMultiple: FALSE
 asStatic: FALSE
