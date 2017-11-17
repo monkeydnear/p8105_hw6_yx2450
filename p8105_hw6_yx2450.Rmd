@@ -69,16 +69,18 @@ This box chart describes the distribution of scores of different cuisines. The x
 nyc_inspections %>%
   separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
   mutate(month = as.numeric(month)) %>%
-  select(inspection_num: month) %>% 
-  unite(grade_date, c(year, month), sep = " ", remove = FALSE) %>%
-  arrange(grade_date) %>% 
-  count(grade_date) %>% 
-  plot_ly(x = ~grade_date, y = ~n, type = "scatter", mode = "lines") %>% 
-    layout(title = "the Number of Restaurant on Each Month",
-           xaxis = list(title = "time"),
+  select(inspection_num: month) %>%
+  count(year,month) %>% 
+  mutate(date = str_c(year,month,"1",sep="-"),
+         date = as.Date(date)) %>%
+  arrange(date) %>% 
+  plot_ly(x = ~date, y = ~n, type = "scatter", mode = "lines") %>% 
+  layout(title = "the Number of Restaurant Graded on each Month",
+         xaxis = list(title = "time"),
          yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
+
 ```
 
 This line plot describes how many restaurants were graded on each month. The x axis represents timeline, and the y axis represents number of restaurants was graded.
