@@ -1,0 +1,12 @@
+name: shiny_dashboard_template
+title: shiny_dashboard_template
+username:
+account: caimanqi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 236593
+bundleId: 1080415
+url: https://caimanqi.shinyapps.io/shiny_dashboard_template/
+when: 1510893238.1901
+asMultiple: FALSE
+asStatic: FALSE

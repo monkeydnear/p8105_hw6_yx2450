@@ -1,14 +1,14 @@
 ---
-title: "nyc_restaurant EDA"
+  title: "nyc_restaurant EDA"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
-    theme: cosmo
-    orientation: columns
-    vertical_layout: fill
-    source_code: embed
+  theme: cosmo
+orientation: columns
+vertical_layout: fill
+source_code: embed
 ---
-```{r global, include=FALSE}
+  ```{r global, include=FALSE}
 library(readr)
 library(tidyverse)
 library(janitor)
@@ -37,8 +37,8 @@ nyc_inspections =
 
 Column {.sidebar}
 -----------------------------------------------------------------------
-
-```{r}
+  
+  ```{r}
 
 
 boros = nyc_inspections %>% distinct(boro) %>% pull()
@@ -49,58 +49,58 @@ selectInput("boro_choice", label = h3("Select boro"),
 
 max_score = 100
 min_score = nyc_inspections %>% distinct(score) %>% select(score) %>% na.omit() %>% min()
-  
+
 # sliderInput widget
 sliderInput("score_range", label = h3("Choose score of restaurant"), min = min_score, 
-        max = max_score, value = c(10, 40))
+            max = max_score, value = c(10, 40))
 
 cuisine_description = nyc_inspections %>% distinct(cuisine_description) %>% pull()
 
 # radioButtons widget
 radioButtons("cuisine_description", label = h3("Choose cuisine type"),
-    choices = cuisine_description, 
-    selected = "American")
+             choices = cuisine_description, 
+             selected = "American")
 
 ```
 
 
 Row
 -----------------------------------------------------------------------
-
-###  bar chart
-
-```{r}
+  
+  ###  bar chart
+  
+  ```{r}
 
 renderPlotly({nyc_inspections %>% 
-  filter(boro == input$boro_choice) %>% 
-  count(boro) %>% 
-  plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
+    filter(boro == input$boro_choice) %>% 
+    count(boro) %>% 
+    plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
     layout(xaxis = list(title = "", tickangle = 45),
-         yaxis = list(title = ""),
-         margin = list(b = 100),
-         barmode = 'group')})
+           yaxis = list(title = ""),
+           margin = list(b = 100),
+           barmode = 'group')})
 
 ```
 
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
-
-### boxplot
-
-```{r}
+  
+  ### boxplot
+  
+  ```{r}
 renderPlotly({
   nyc_inspections %>% 
     filter(cuisine_description == input$cuisine_description,
            score %in% input$score_range[1]:input$score_range[2]) %>%
-  mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
-  plot_ly(y = ~score, color = ~cuisine_description, type = "box",
-          colors = "Set2") %>% 
-  layout(xaxis = list(title = "", tickangle = 45),
-         yaxis = list(title = ""),
-         margin = list(b = 100),
-         barmode = 'group',
-         showlegend = FALSE)
-  })
+    mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
+    plot_ly(y = ~score, color = ~cuisine_description, type = "box",
+            colors = "Set2") %>% 
+    layout(xaxis = list(title = "", tickangle = 45),
+           yaxis = list(title = ""),
+           margin = list(b = 100),
+           barmode = 'group',
+           showlegend = FALSE)
+})
 ```
 
 
