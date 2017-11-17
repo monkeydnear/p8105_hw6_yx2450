@@ -15,7 +15,8 @@ library(plotly)
 
 ```{r}
 ##omit NA
-nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
+nyc_inspections = 
+  read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
                            col_types = cols(building = col_character()),
                            na = c("NA", "N/A")) %>% 
   na.omit() 
@@ -23,7 +24,9 @@ nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Res
 ##clean dataset
 nyc_inspections =
   nyc_inspections %>%
-  filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
+  filter(grade %in% c("A", "B", "C"), 
+         boro != "Missing",
+         cuisine_description %in% "A:H") %>% 
   mutate(boro = str_to_title(boro),
          inspection_num = row_number()) %>% 
   select(inspection_num, boro, grade, score, critical_flag, dba, cuisine_description, zipcode, grade_date)

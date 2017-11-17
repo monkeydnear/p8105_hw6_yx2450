@@ -1,5 +1,5 @@
 ---
-title: "nyc_restaurant EDA"
+title: "nyc_restaurant Inspection"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
@@ -21,45 +21,60 @@ library(flexdashboard)
 
 set.seed(1)
 
+##omit NA
 nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
                            col_types = cols(building = col_character()),
-                           na = c("NA", "N/A"))
+                           na = c("NA", "N/A")) %>% 
+  na.omit() 
 
-
+##clean dataset
 nyc_inspections =
   nyc_inspections %>%
   filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
-  mutate(boro = str_to_title(boro)) 
-
+  mutate(boro = str_to_title(boro),
+         inspection_num = row_number()) %>% 
+  select(inspection_num, boro, grade, score, critical_flag, dba, cuisine_description, zipcode, grade_date)
 ```
 
 
 
 Column {.sidebar}
 -----------------------------------------------------------------------
-
+ 
 ```{r}
 
-
+# selectInput widget-boro
 boros = nyc_inspections %>% distinct(boro) %>% pull()
-
-# selectInput widget
-selectInput("boro_choice", label = h3("Select boro"),
+selectInput("boro_choice", label = h3("Select boro for bar plot"),
             choices = boros, selected = "Manhattan")
 
+
+# selectInput widget-year
+year = 
+  nyc_inspections %>%
+  separate(grade_date, into = c("year", "month", "day"), sep = "-") %>%  distinct(year) %>% pull()
+
+selectInput("year", label = h3("Select year for line plot"),
+            choices = year, selected = "2015")
+
+# sliderInput widget
 max_score = 100
 min_score = nyc_inspections %>% distinct(score) %>% select(score) %>% na.omit() %>% min()
-  
-# sliderInput widget
-sliderInput("score_range", label = h3("Choose score of restaurant"), min = min_score, 
+
+sliderInput("score_range", label = h3("Choose score of restaurant for box plot"), min = min_score, 
         max = max_score, value = c(10, 40))
 
+
+# checkbox widget
 cuisine_description = nyc_inspections %>% distinct(cuisine_description) %>% pull()
 
-# radioButtons widget
-radioButtons("cuisine_description", label = h3("Choose cuisine type"),
+checkboxGroupInput("cuisine_description", label = h3("Choose cuisine type for box plot"),
     choices = cuisine_description, 
     selected = "American")
+
+
+
+
 
 ```
 
@@ -68,17 +83,18 @@ Row
 -----------------------------------------------------------------------
 
 ###  bar chart
-
+This bar plot describes the distribution of number of restaurant in different boros. The x axis represent different boros in NYC, and the y axis represent the number of restaurant.
 ```{r}
-
-renderPlotly({nyc_inspections %>% 
+renderPlotly({
+  nyc_inspections %>% 
   filter(boro == input$boro_choice) %>% 
   count(boro) %>% 
   plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
     layout(xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
-         barmode = 'group')})
+         barmode = 'group')
+  })
 
 ```
 
@@ -86,7 +102,7 @@ Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
 ### boxplot
-
+This box chart describes the distribution of scores of different cuisines. The x axis represents different cuisines, and the y axis shows the score distribution of each cuisines.
 ```{r}
 renderPlotly({
   nyc_inspections %>% 
@@ -103,5 +119,27 @@ renderPlotly({
   })
 ```
 
+### line plot
+This line plot describes how many restaurants were graded on each month. The x axis represents timeline, and the y axis represents number of restaurants was graded.
 
+```{r}
+##plot that shows number of row for each grade date
+renderPlotly({
+  nyc_inspections %>%
+  separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
+  filter(year == input$year) %>% 
+  mutate(month = as.numeric(month)) %>%
+  select(inspection_num: month) %>%
+  count(year,month) %>% 
+  mutate(date = str_c(year,month,"1",sep="-"),
+         date = as.Date(date)) %>%
+  arrange(date) %>% 
+  plot_ly(x = ~date, y = ~n, type = "scatter", mode = "lines") %>% 
+  layout(title = "the Number of Restaurant Graded on each Month",
+         xaxis = list(title = "time"),
+         yaxis = list(title = "number of restaurant"),
+         margin = list(b = 100),
+         barmode = 'group')
+})
+```
 

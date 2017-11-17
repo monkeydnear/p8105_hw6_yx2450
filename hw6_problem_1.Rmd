@@ -1,10 +1,12 @@
 
 ---
-title: "Untitled"
+title: "problem1"
 output: 
   flexdashboard::flex_dashboard:
+    theme: cosmo
     orientation: columns
     vertical_layout: fill
+    source_code: embed
 ---
 
 ```{r setup, include=FALSE}
@@ -20,23 +22,31 @@ library(shiny)
 ```
 
 ```{r}
+##omit NA
 nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
                            col_types = cols(building = col_character()),
-                           na = c("NA", "N/A"))
+                           na = c("NA", "N/A")) %>% 
+  na.omit() 
 
+##clean dataset
 nyc_inspections =
   nyc_inspections %>%
   filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
-  mutate(boro = str_to_title(boro))
+  mutate(boro = str_to_title(boro),
+         inspection_num = row_number()) %>% 
+  select(inspection_num, boro, grade, score, critical_flag, dba, cuisine_description, zipcode, grade_date)
 ```
 
 
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### bar plot
+
+This bar plot describes the distribution of number of restaurant in different boros. The x axis represent different boros in NYC, and the y axis represent the number of restaurant. 
 
 ```{r}
+##plot that shows the number of restaurant in different boros
 nyc_inspections %>% 
   count(boro) %>% 
   plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
@@ -49,9 +59,13 @@ nyc_inspections %>%
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### boxplot
+
+This box chart describes the distribution of scores of different cuisines. The x axis represents different cuisines, and the y axis shows the score distribution of each cuisines.
+
 
 ```{r}
+##plot that shows the score distribution of different cuisines
 
 nyc_inspections %>% 
   mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
@@ -64,18 +78,23 @@ nyc_inspections %>%
          showlegend = FALSE) 
 ```
 
-### Chart C
+### line plot
+This line plot describes how many restaurants were graded on each month. The x axis represents timeline, and the y axis represents number of restaurants was graded.
 
 ```{r}
+##plot that shows number of row for each grade date
 nyc_inspections %>%
   separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
-  mutate(month = as.numeric(month)) %>% 
-  mutate(month = month.abb[month]) %>% 
-  unite(grade_date, c(year, month), sep = " ", remove = FALSE) %>% 
-  count(grade_date) %>% 
-  plot_ly(x = ~grade_date, y = ~n, type = "scatter", mode = "lines", fill = "tozeroy") %>% 
-    layout(xaxis = list(title = "", tickangle = -45),
-         yaxis = list(title = ""),
+  mutate(month = as.numeric(month)) %>%
+  select(inspection_num: month) %>%
+  count(year,month) %>% 
+  mutate(date = str_c(year,month,"1",sep="-"),
+         date = as.Date(date)) %>%
+  arrange(date) %>% 
+  plot_ly(x = ~date, y = ~n, type = "scatter", mode = "lines") %>% 
+  layout(title = "the Number of Restaurant Graded on each Month",
+         xaxis = list(title = "time"),
+         yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
 ```
