@@ -1,0 +1,13 @@
+---
+title: "p8105_hw6_yx2450"
+author: Yixi Xu(yx2450)
+output: html_document
+---
+
+I work with Manqi Cai(mc4433) for this homework
+
+Overall solution is [here](https://caimanqi.github.io/p8105_hw6_mc4433/)
+
+Github for dashboard is [here](https://github.com/monkeydnear/p8105_hw6_yx2450)
+
+Github for website is [here](https://github.com/caimanqi/p8105_hw6_mc4433)
