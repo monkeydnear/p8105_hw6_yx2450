@@ -11,62 +11,75 @@ library(stringr)
 library(forcats)
 library(viridis)
 library(plotly)
-
 ```
 
 ```{r}
+##omit NA
 nyc_inspections = read_csv("./data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv.gz", 
                            col_types = cols(building = col_character()),
                            na = c("NA", "N/A")) %>% 
-  na.omit() %>% 
-  sample(1000)
+  na.omit() 
 
+##clean dataset
 nyc_inspections =
   nyc_inspections %>%
   filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
-  mutate(boro = str_to_title(boro)) 
-  
+  mutate(boro = str_to_title(boro),
+         inspection_num = row_number()) %>% 
+  select(inspection_num, boro, grade, score, critical_flag, dba, cuisine_description, zipcode, grade_date)
 ```
 
-###bar chart
+###bar plot
 ```{r}
+##plot that shows the number of restaurant in different boros
 nyc_inspections %>% 
   count(boro) %>% 
   plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
-    layout(xaxis = list(title = "", tickangle = 45),
-         yaxis = list(title = ""),
+    layout(title = "Number of Restaurant in Different Boros",
+      xaxis = list(title = "boro", tickangle = 45),
+         yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
-
-
 ```
+
+This bar plot describes the distribution of number of restaurant in different boros. The x axis represent different boros in NYC, and the y axis represent the number of restaurant. 
 
 ###boxplot
 ```{r}
-
+##plot that shows the score distribution of different cuisines
 nyc_inspections %>% 
+  filter(cuisine_description != "Not Listed/Not Applicable") %>% 
   mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
   plot_ly(y = ~score, color = ~cuisine_description, type = "box",
           colors = "Set2") %>% 
-  layout(xaxis = list(title = "", tickangle = 45),
-         yaxis = list(title = ""),
+  layout(title = "the Score Distribution of Different Cuisines",
+         xaxis = list(title = "cuisine_description", tickangle = 90),
+         yaxis = list(title = "score"),
          margin = list(b = 100),
          barmode = 'group',
          showlegend = FALSE)  
 ```
 
-###Area plot
+This box chart describes the distribution of scores of different cuisines. The x axis represents different cuisines, and the y axis shows the score distribution of each cuisines.
+
+
+###line plot
 ```{r}
+##plot that shows number of row for each grade date
 nyc_inspections %>%
   separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
-  mutate(month = as.numeric(month)) %>% 
-  mutate(month = month.abb[month]) %>% 
-  unite(grade_date, c(year, month), sep = " ", remove = FALSE) %>% 
+  mutate(month = as.numeric(month)) %>%
+  select(inspection_num: month) %>% 
+  unite(grade_date, c(year, month), sep = " ", remove = FALSE) %>%
+  arrange(grade_date) %>% 
   count(grade_date) %>% 
-  plot_ly(x = ~grade_date, y = ~n, type = "scatter", mode = "lines", fill = "tozeroy") %>% 
-    layout(xaxis = list(title = "", tickangle = -45),
-         yaxis = list(title = ""),
+  plot_ly(x = ~grade_date, y = ~n, type = "scatter", mode = "lines") %>% 
+    layout(title = "the Number of Restaurant on Each Month",
+           xaxis = list(title = "time"),
+         yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
 ```
+
+This line plot describes how many restaurants were graded on each month. The x axis represents timeline, and the y axis represents number of restaurants was graded.
 
