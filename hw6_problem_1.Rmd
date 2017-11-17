@@ -50,8 +50,9 @@ This bar plot describes the distribution of number of restaurant in different bo
 nyc_inspections %>% 
   count(boro) %>% 
   plot_ly(x= ~boro, y = ~n, color = ~boro, type = "bar") %>% 
-    layout(xaxis = list(title = "", tickangle = 45),
-         yaxis = list(title = ""),
+    layout(title = "Number of Restaurant in Different Boros",
+      xaxis = list(title = "boro", tickangle = 45),
+         yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
 ```
@@ -71,11 +72,12 @@ nyc_inspections %>%
   mutate(cuisine_description = fct_reorder(cuisine_description, score)) %>%
   plot_ly(y = ~score, color = ~cuisine_description, type = "box",
           colors = "Set2") %>% 
-  layout(xaxis = list(title = "", tickangle = 45),
+  layout(title = "the Score Distribution of Different Cuisines",
+         xaxis = list(title = "", tickangle = 45),
          yaxis = list(title = ""),
          margin = list(b = 100),
          barmode = 'group',
-         showlegend = FALSE) 
+         showlegend = FALSE)
 ```
 
 ### line plot
@@ -97,4 +99,5 @@ nyc_inspections %>%
          yaxis = list(title = "number of restaurant"),
          margin = list(b = 100),
          barmode = 'group')
+
 ```
